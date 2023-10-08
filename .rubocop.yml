@@ -1,0 +1,9 @@
+require:
+  - rubocop-rails
+  - rubocop-rspec
+Style/Documentation:
+  Enabled: false
+AllCops:
+  NewCops: enable
+RSpec/MultipleExpectations:
+  Max: 2
