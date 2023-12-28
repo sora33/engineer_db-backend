@@ -5,5 +5,15 @@ Style/Documentation:
   Enabled: false
 AllCops:
   NewCops: enable
+  CacheRootDirectory: /tmp
 RSpec/MultipleExpectations:
   Max: 2
+
+Metrics/MethodLength:
+  Exclude:
+    - 'spec/**/*_spec.rb'
+    - 'db/**/*'
+Metrics/AbcSize:
+  Exclude:
+    - 'spec/**/*_spec.rb'
+    - 'db/**/*'
