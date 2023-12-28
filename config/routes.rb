@@ -7,6 +7,7 @@ Rails.application.routes.draw do
         resource :skills, only: %i[show update]
       end
       resource :avatars, only: [:update]
+      resources :posts, only: %i[index create destroy]
     end
   end
 end
