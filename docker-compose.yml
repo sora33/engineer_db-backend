@@ -8,7 +8,10 @@ services:
       - db:/var/lib/postgresql/data
   api:
     build: .
+    env_file: 
+      - .env
     command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    user: "1000:1000"
     volumes:
       - .:/myapp
       - bundle:/usr/local/bundle
