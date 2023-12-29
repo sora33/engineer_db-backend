@@ -17,8 +17,6 @@ module Api
       end
 
       def create
-        @user.last_sign_in_at = Time.zone.now
-
         if @user.save
           render json: @user
         else
@@ -36,6 +34,11 @@ module Api
         end
       rescue StandardError => e
         handle_standard_error(e)
+      end
+
+      def destroy
+        current_user.destroy
+        head :no_content
       end
 
       private
@@ -58,7 +61,7 @@ module Api
 
       def user_update_params
         params.require(:user).permit(:name, :purpose, :comment, :work, :occupation, :introduction, :hobby, :birthday,
-                                     :location, :website)
+                                     :experience, :gender, :location, :website)
       end
 
       def render_error
