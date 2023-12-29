@@ -3,7 +3,7 @@
 class UserSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
   attributes :id, :name, :purpose, :comment, :introduction, :hobby, :birthday, :location, :work, :occupation, :website,
-             :avatar, :updated_at, :created_at
+             :experience, :gender, :avatar, :last_sign_in_at, :updated_at, :created_at
 
   def avatar
     return rails_blob_url(object.avatar, only_path: true) if object.avatar.attached?

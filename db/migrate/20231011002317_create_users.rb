@@ -10,6 +10,8 @@ class CreateUsers < ActiveRecord::Migration[7.0]
       t.string 'comment'
       t.string 'work'
       t.string 'occupation'
+      t.string 'gender'
+      t.integer 'experience'
       t.text 'introduction'
       t.text 'hobby'
       t.datetime 'birthday'

@@ -69,13 +69,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_12_27_202517) do
     t.string "comment"
     t.string "work"
     t.string "occupation"
+    t.string "gender"
+    t.integer "experience"
     t.text "introduction"
     t.text "hobby"
     t.datetime "birthday"
     t.string "location"
     t.string "website"
-    t.string "contact"
-    t.string "sns"
     t.datetime "last_sign_in_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
