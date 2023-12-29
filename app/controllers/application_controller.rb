@@ -43,7 +43,13 @@ class ApplicationController < ActionController::API
 
   def find_current_user(decoded_token)
     @current_user = User.find_by(provider: decoded_token['provider'], id: decoded_token['providerUserId'])
-    render_unauthorized unless @current_user
+    if @current_user
+      if @current_user.last_sign_in_at.nil? || @current_user.last_sign_in_at < 10.minutes.ago
+        @current_user.update(last_sign_in_at: Time.zone.now)
+      end
+    else
+      render_unauthorized
+    end
   end
 
   def render_unauthorized
