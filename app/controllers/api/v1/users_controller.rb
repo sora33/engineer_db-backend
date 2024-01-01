@@ -8,8 +8,11 @@ module Api
       before_action :set_user, only: %i[show update]
 
       def index
-        user = User.all
-        render json: user
+        users = filter_and_sort_users
+        total_count = users.count
+        users = paginate(users)
+        serialized_users = ActiveModelSerializers::SerializableResource.new(users).as_json
+        render json: { users: serialized_users, totalCount: total_count }
       end
 
       def show
@@ -27,6 +30,10 @@ module Api
       end
 
       def update
+        unless @user == current_user
+          return render json: { error: 'You can only update your own profile.' }, status: :forbidden
+        end
+
         if @user.update(user_update_params)
           render json: @user
         else
@@ -62,6 +69,29 @@ module Api
       def user_update_params
         params.require(:user).permit(:name, :purpose, :comment, :work, :occupation, :introduction, :hobby, :birthday,
                                      :experience, :gender, :location, :website)
+      end
+
+      def filter_and_sort_users
+        users = User.includes(:skills, :avatar_attachment).where.not(id: current_user.id).order(last_sign_in_at: :desc)
+        users = apply_search_params(users)
+        apply_skill_params(users)
+      end
+
+      def apply_search_params(users)
+        search_params = params.permit(:gender, :location, :purpose, :work, :occupation)
+        search_params.each do |key, value|
+          users = users.where(key => value) if value.present?
+        end
+        users
+      end
+
+      def apply_skill_params(users)
+        skill = params[:skill]
+        skill_level = params[:skillLevel]
+        if skill.present? && skill_level.present?
+          users = users.joins(:skills).where('skills.name = ? AND skills.level >= ?', skill, skill_level)
+        end
+        users
       end
 
       def render_error
