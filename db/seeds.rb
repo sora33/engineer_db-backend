@@ -42,13 +42,14 @@ users = [
     experience: 3,
     introduction: "新しい技術を学ぶのが好きです。\n特に、最近はフロントエンドの技術に興味があり、ReactやVue.jsを使った開発を学んでいます。\nまた、バックエンドではRuby on RailsやNode.jsを使った開発も行っています。新しい技術の学習は、常に新しい発見があるため、非常に楽しいです。",
     hobby: "私の趣味は読書と旅行です。\n読書は、新しい知識を得るだけでなく、異なる視点や考え方を理解するのに役立ちます。特に、歴史や科学の本を読むのが好きです。\n旅行は、新しい場所を探索し、異なる文化を体験するのが好きです。特に、自然が豊かな場所に行くのが好きで、山登りやキャンプを楽しんでいます。\n一緒に読書や旅行を楽しみませんか？",
-    birthday: Date.parse('1990-01-01'),
+    birthday: Date.parse('2010-01-01'),
     location: '東京都',
     website: 'https://taro.example.com',
     last_sign_in_at: 3.days.ago
   },
   {
     name: 'かず子',
+    birthday: Date.parse('2000-05-05'),
     last_sign_in_at: 2.days.ago
   },
   {
@@ -61,7 +62,7 @@ users = [
     experience: 7,
     introduction: 'ユーザー体験を重視しています。',
     hobby: "映画鑑賞\n一緒にしませんか。",
-    birthday: Date.parse('1988-08-20'),
+    birthday: Date.parse('1990-08-20'),
     location: '福岡県',
     website: 'https://ichiro.example.com',
     last_sign_in_at: 1.day.ago
