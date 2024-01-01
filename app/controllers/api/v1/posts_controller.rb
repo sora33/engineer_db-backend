@@ -6,10 +6,7 @@ module Api
       before_action :set_post, only: %i[destroy]
 
       def index
-        limit = 10
-        page = params[:page].to_i
-        offset = page.positive? ? (page - 1) * limit : 0
-        @posts = Post.order(created_at: :desc).limit(limit).offset(offset)
+        @posts = paginate(Post.includes(:user, user: :avatar_attachment).order(created_at: :desc))
         render json: @posts
       end
 
