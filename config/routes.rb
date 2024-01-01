@@ -9,6 +9,7 @@ Rails.application.routes.draw do
       end
       resource :avatars, only: [:update]
       resources :posts, only: %i[index create destroy]
+      resources :dashboard, only: [:index]
     end
   end
 end
