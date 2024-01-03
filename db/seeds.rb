@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-my_user = User.find("a009c281-499a-4038-a4ed-f6847b5db934")
+# rubocop:disable all
+
+my_user = User.find('a009c281-499a-4038-a4ed-f6847b5db934')
 # 各カテゴリのスキルリストを定義
 project_skills = %w[project_management product_management project_management_office project_leader
                     chief_technology_officer tech_lead]
@@ -55,13 +57,13 @@ users = [
     location: '東京都',
     website: 'https://taro.example.com',
     last_sign_in_at: 3.days.ago,
-    skills: ['html_css', 'javascript', 'ruby_on_rails']
+    skills: %w[html_css javascript ruby_on_rails]
   },
   {
     name: 'かず子',
     birthday: Date.parse('2000-05-05'),
     last_sign_in_at: 2.days.ago,
-    skills: ['project_management', 'java', 'spring', 'oracle', 'aws']
+    skills: %w[project_management java spring oracle aws]
   },
   {
     name: 'たなか',
@@ -77,7 +79,7 @@ users = [
     location: '福岡県',
     website: 'https://ichiro.example.com',
     last_sign_in_at: 1.day.ago,
-    skills: ['project_management', 'product_management', 'c_language', 'c_plus_plus', 'sql', 'aws', 'azure']
+    skills: %w[project_management product_management c_language c_plus_plus sql aws azure]
   }
 ]
 
@@ -97,55 +99,54 @@ users.each_with_index do |user, user_index|
     birthday: user[:birthday],
     location: user[:location],
     website: user[:website],
-    last_sign_in_at: user[:last_sign_in_at],
+    last_sign_in_at: user[:last_sign_in_at]
   )
   user[:skills].each do |skill|
     Skill.create!(
       user_id: created_user.id,
       name: skill,
-      level: rand(0..7),
+      level: rand(0..7)
     )
   end
   3.times do |i|
     Post.create!(
       user_id: created_user.id,
-      content: posts[(user_index * 2) + i],
+      content: posts[(user_index * 2) + i]
     )
   end
 
-  # # my_userと各ユーザー間のグループを作成
-  # group = Group.create!()
+  # my_userと各ユーザー間のグループを作成
+  group = Group.create!
 
-  # # グループにユーザーを追加
-  # GroupUser.create!(
-  #   group_id: group.id,
-  #   user_id: my_user.id,
-  # )
-  # GroupUser.create!(
-  #   group_id: group.id,
-  #   user_id: created_user.id,
-  # )
+  # グループにユーザーを追加
+  GroupUser.create!(
+    group_id: group.id,
+    user_id: my_user.id
+  )
+  GroupUser.create!(
+    group_id: group.id,
+    user_id: created_user.id
+  )
 
-  # # my_userから各ユーザーへのメッセージ
-  # 2.times do |i|
-  #   Message.create!(
-  #     group_id: group.id,
-  #     user_id: my_user.id,
-  #     content: messages[i],
-  #     is_read: false,
-  #   )
-  # end
+  # my_userから各ユーザーへのメッセージ
+  2.times do |i|
+    Message.create!(
+      group_id: group.id,
+      user_id: my_user.id,
+      content: messages[i],
+      is_read: false
+    )
+  end
 
-  # # 各ユーザーからmy_userへのメッセージ
-  # 2.times do |i|
-  #   Message.create!(
-  #     group_id: group.id,
-  #     user_id: created_user.id,
-  #     content: messages[i + 2],
-  #     is_read: false,
-  #     created_at: Time.zone.now,
-  #     updated_at: Time.zone.now
-  #   )
-  # end
-
+  # 各ユーザーからmy_userへのメッセージ
+  2.times do |i|
+    Message.create!(
+      group_id: group.id,
+      user_id: created_user.id,
+      content: messages[i + 2],
+      is_read: false,
+      created_at: Time.zone.now,
+      updated_at: Time.zone.now
+    )
+  end
 end

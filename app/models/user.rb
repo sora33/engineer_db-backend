@@ -3,9 +3,9 @@
 class User < ApplicationRecord
   has_many :skills, dependent: :destroy
   has_many :posts, dependent: :destroy
-  has_many :group_users
+  has_many :group_users, dependent: :destroy
   has_many :groups, through: :group_users
-  has_many :messages
+  has_many :messages, dependent: :destroy
 
   has_one_attached :avatar
 
