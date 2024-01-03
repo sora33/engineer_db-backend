@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# rubocop:disable all
+
+my_user = User.find('a009c281-499a-4038-a4ed-f6847b5db934')
 # 各カテゴリのスキルリストを定義
 project_skills = %w[project_management product_management project_management_office project_leader
                     chief_technology_officer tech_lead]
@@ -30,6 +33,14 @@ posts = [
   '最近、GraphQLについて学んでいます。REST APIと比較して、必要なデータだけを効率的に取得できる点が魅力的だと感じています。これからもGraphQLを活用していきたいと思います。'
 ]
 
+# メッセージの内容を定義
+messages = [
+  'こんにちは、初めまして。',
+  'プロジェクトについて話しましょう。',
+  '最近どんな技術を学んでいますか？',
+  '次回のミーティングはいつがいいですか？'
+]
+
 # ユーザーを3人作成
 users = [
   {
@@ -39,39 +50,41 @@ users = [
     work: 'fullTime',
     occupation: 'engineer',
     gender: 'male',
-    experience: 3,
+    experience: 1,
     introduction: "新しい技術を学ぶのが好きです。\n特に、最近はフロントエンドの技術に興味があり、ReactやVue.jsを使った開発を学んでいます。\nまた、バックエンドではRuby on RailsやNode.jsを使った開発も行っています。新しい技術の学習は、常に新しい発見があるため、非常に楽しいです。",
     hobby: "私の趣味は読書と旅行です。\n読書は、新しい知識を得るだけでなく、異なる視点や考え方を理解するのに役立ちます。特に、歴史や科学の本を読むのが好きです。\n旅行は、新しい場所を探索し、異なる文化を体験するのが好きです。特に、自然が豊かな場所に行くのが好きで、山登りやキャンプを楽しんでいます。\n一緒に読書や旅行を楽しみませんか？",
     birthday: Date.parse('2010-01-01'),
     location: '東京都',
     website: 'https://taro.example.com',
-    last_sign_in_at: 3.days.ago
+    last_sign_in_at: 3.days.ago,
+    skills: %w[html_css javascript ruby_on_rails]
   },
   {
     name: 'かず子',
     birthday: Date.parse('2000-05-05'),
-    last_sign_in_at: 2.days.ago
+    last_sign_in_at: 2.days.ago,
+    skills: %w[project_management java spring oracle aws]
   },
   {
-    name: '佐藤',
+    name: 'たなか',
     purpose: 'hobby',
     comment: '美しいウェブを作りたい！',
     work: 'businessOwner',
     occupation: 'consultant',
     gender: 'other',
-    experience: 7,
+    experience: 20,
     introduction: 'ユーザー体験を重視しています。',
     hobby: "映画鑑賞\n一緒にしませんか。",
     birthday: Date.parse('1990-08-20'),
     location: '福岡県',
     website: 'https://ichiro.example.com',
-    last_sign_in_at: 1.day.ago
+    last_sign_in_at: 1.day.ago,
+    skills: %w[project_management product_management c_language c_plus_plus sql aws azure]
   }
 ]
 
 users.each_with_index do |user, user_index|
   created_user = User.create!(
-    id: SecureRandom.uuid,
     provider: 'github',
     provider_id: SecureRandom.uuid,
     name: user[:name],
@@ -86,25 +99,52 @@ users.each_with_index do |user, user_index|
     birthday: user[:birthday],
     location: user[:location],
     website: user[:website],
-    last_sign_in_at: user[:last_sign_in_at],
-    created_at: Time.zone.now,
-    updated_at: Time.zone.now
+    last_sign_in_at: user[:last_sign_in_at]
   )
-  all_skills.each do |skill|
+  user[:skills].each do |skill|
     Skill.create!(
-      id: SecureRandom.uuid,
       user_id: created_user.id,
       name: skill,
-      level: rand(0..7),
-      created_at: Time.zone.now,
-      updated_at: Time.zone.now
+      level: rand(0..7)
     )
   end
   3.times do |i|
     Post.create!(
-      id: SecureRandom.uuid,
       user_id: created_user.id,
-      content: posts[(user_index * 2) + i],
+      content: posts[(user_index * 2) + i]
+    )
+  end
+
+  # my_userと各ユーザー間のグループを作成
+  group = Group.create!
+
+  # グループにユーザーを追加
+  GroupUser.create!(
+    group_id: group.id,
+    user_id: my_user.id
+  )
+  GroupUser.create!(
+    group_id: group.id,
+    user_id: created_user.id
+  )
+
+  # my_userから各ユーザーへのメッセージ
+  2.times do |i|
+    Message.create!(
+      group_id: group.id,
+      user_id: my_user.id,
+      content: messages[i],
+      is_read: false
+    )
+  end
+
+  # 各ユーザーからmy_userへのメッセージ
+  2.times do |i|
+    Message.create!(
+      group_id: group.id,
+      user_id: created_user.id,
+      content: messages[i + 2],
+      is_read: false,
       created_at: Time.zone.now,
       updated_at: Time.zone.now
     )
