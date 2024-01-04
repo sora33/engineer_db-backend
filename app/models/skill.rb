@@ -3,7 +3,7 @@
 class Skill < ApplicationRecord
   belongs_to :user
 
-  validates :name, presence: true
+  validates :name, presence: true, length: { maximum: 100 }
   validates :level, presence: true
   validates :name, uniqueness: { scope: :user_id }
   validates :level, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 7 }

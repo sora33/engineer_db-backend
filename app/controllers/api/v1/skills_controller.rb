@@ -4,6 +4,7 @@ module Api
   module V1
     class SkillsController < ApplicationController
       before_action :set_user, only: %i[show update]
+      rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
       def show
         render json: @user.skills
@@ -11,11 +12,7 @@ module Api
 
       def update
         if @user == current_user
-          params[:skills].each do |skill_param|
-            skill = current_user.skills.find_or_initialize_by(name: skill_param[:name])
-            render json: skill.errors, status: :unprocessable_entity unless skill.update(level: skill_param[:level])
-          end
-          render json: current_user.skills
+          update_skills
         else
           render json: { error: 'You can only update your own skills.' }, status: :forbidden
         end
@@ -29,6 +26,16 @@ module Api
 
       def skill_params
         params.permit(skills: %i[name level])
+      end
+
+      def update_skills
+        params[:skills].each do |skill_param|
+          skill = current_user.skills.find_or_initialize_by(name: skill_param[:name])
+          unless skill.update(level: skill_param[:level])
+            return render json: skill.errors, status: :unprocessable_entity
+          end
+        end
+        render json: current_user.skills
       end
     end
   end

@@ -4,6 +4,7 @@ module Api
   module V1
     class MessagesController < ApplicationController
       before_action :set_group, only: %i[index create]
+      rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
       def index
         messages = @group.messages.order(:created_at) || []

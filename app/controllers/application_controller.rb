@@ -71,8 +71,8 @@ class ApplicationController < ActionController::API
     render json: { error: 'Not Authorized' }, status: :unauthorized
   end
 
-  rescue_from ActiveRecord::RecordNotFound do |_exception|
-    render json: { error: 'Record not found' }, status: :not_found
+  def record_not_found
+    render plain: '404 Not Found', status: :not_found
   end
 
   rescue_from StandardError do |_exception|

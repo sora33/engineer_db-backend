@@ -10,6 +10,11 @@ class User < ApplicationRecord
   has_one_attached :avatar
 
   validates :provider, :provider_id, :name, presence: true
+  validates :location, :purpose, :comment, :work, :occupation,
+            :gender, length: { maximum: 25 }, allow_blank: true
+  validates :website, length: { maximum: 200 }, allow_blank: true
+  validates :hobby, :introduction, length: { maximum: 600 }, allow_blank: true
+  validates :experience, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, allow_blank: true
 
   PURPOSE_OPTIONS = %w[partner work hobby other].freeze
   OCCUPATION_OPTIONS = %w[engineer projectManager consultant dataAnalyst cto other].freeze

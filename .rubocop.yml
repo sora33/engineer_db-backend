@@ -23,3 +23,8 @@ Layout/LineLength:
 Metrics/BlockLength:
   Exclude:
     - 'db/**/*'
+
+RSpec/AnyInstance:
+  Enabled: false
+RSpec/ExampleLength:
+  Max: 15
