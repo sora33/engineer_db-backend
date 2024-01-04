@@ -1,0 +1,16 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe Post do
+  subject(:post) { build(:post) }
+
+  describe 'validations' do
+    it { is_expected.to validate_presence_of(:content) }
+    it { is_expected.to validate_length_of(:content).is_at_most(400) }
+  end
+
+  describe 'associations' do
+    it { is_expected.to belong_to(:user) }
+  end
+end
