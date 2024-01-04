@@ -6,6 +6,7 @@ module Api
       skip_before_action :authenticate_request, only: [:create]
       before_action :find_or_initialize_user, only: [:create]
       before_action :set_user, only: %i[show update]
+      rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
       def index
         users = filter_and_sort_users

@@ -3,6 +3,7 @@
 module Api
   module V1
     class DmGroupsController < ApplicationController
+      rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
       # rubocop:disable Metrics/AbcSize
       def index
         groups = current_user.groups.preload(:users)
@@ -11,7 +12,9 @@ module Api
         users_with_latest_message = groups.map do |group|
           user = group.users.find { |u| u.id != current_user.id }
           latest_message = latest_messages.find { |message| message.group_id == group.id }
-          user.attributes.merge(latestMessage: ActiveModel::SerializableResource.new(latest_message)) if latest_message
+          if latest_message
+            user.attributes.merge(latestMessage: ActiveModelSerializers::SerializableResource.new(latest_message))
+          end
         end.compact
 
         render json: users_with_latest_message

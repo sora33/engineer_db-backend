@@ -4,6 +4,7 @@ module Api
   module V1
     class PostsController < ApplicationController
       before_action :set_post, only: %i[destroy]
+      rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
       def index
         @posts = paginate(Post.includes(:user, user: :avatar_attachment).order(created_at: :desc))

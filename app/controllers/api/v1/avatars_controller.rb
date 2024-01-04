@@ -3,6 +3,7 @@
 module Api
   module V1
     class AvatarsController < ApplicationController
+      rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
       def update
         current_user.avatar.attach(params[:avatar])
         if current_user.avatar.attached?
