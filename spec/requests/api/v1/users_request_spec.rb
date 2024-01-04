@@ -83,4 +83,3 @@ RSpec.describe 'Api::V1::Users' do
     it_behaves_like 'returns http status', :no_content
   end
 end
-

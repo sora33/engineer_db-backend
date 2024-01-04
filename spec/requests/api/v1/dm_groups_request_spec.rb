@@ -31,4 +31,3 @@ RSpec.describe 'Api::V1::DmGroups' do
     end
   end
 end
-
