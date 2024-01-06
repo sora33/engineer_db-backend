@@ -35,6 +35,9 @@ APIのようにJSONを返すときは、リクエストスペックを使う。s
 ### 工夫した点
 テストコードの可読性を高めるために、subjectを使用してテスト対象を明確にしています。
 
+factory_bot_rails
+faker
+shoulda-matchers
 
 参考
 https://qiita.com/KNR109/items/fe331069c4f958efbd96
