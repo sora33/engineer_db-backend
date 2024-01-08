@@ -60,7 +60,7 @@ module Api
                                            provider_id: user_create_params[:provider_id])
         return unless @user.new_record?
 
-        @user.assign_attributes(name: user_create_params[:name])
+        @user.assign_attributes(name: user_create_params[:name], provider_name: user_create_params[:name])
       end
 
       def user_create_params
