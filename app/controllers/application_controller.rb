@@ -1,23 +1,34 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::API
-  before_action :authenticate_request
+  include Paginatable
   attr_reader :current_user
+
+  before_action :authenticate_request
+
+  rescue_from StandardError, with: :handle_internal_server_error
+  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
+  rescue_from JWT::ExpiredSignature, with: :handle_token_expired
 
   private
 
   def authenticate_request
-    decoded_token = decode_token_from_header
-
-    if decoded_token
-      check_token_expiry(decoded_token)
-      find_current_user(decoded_token)
-    else
-      render_unauthorized
-    end
+    @current_user = authenticate_user_from_token(token_from_header)
+    render_unauthorized unless @current_user
   end
 
-  def decode(token)
+  def authenticate_user_from_token(token)
+    return unless token && (decoded_token = decode_token(token))
+    return unless token_not_expired?(decoded_token)
+
+    User.authenticate_from_token(decoded_token)
+  end
+
+  def token_from_header
+    request.headers['Authorization']&.split&.last
+  end
+
+  def decode_token(token)
     next_auth_secret = ENV.fetch('NEXTAUTH_SECRET', nil)
     hkdf = HKDF.new(next_auth_secret, salt: '', algorithm: 'sha256', info: 'NextAuth.js Generated Encryption Key')
     key = hkdf.read(32)
@@ -28,47 +39,33 @@ class ApplicationController < ActionController::API
     nil
   end
 
-  def decode_token_from_header
-    auth_header = request.headers['Authorization']
-    token = auth_header.split.last if auth_header
-    decode(token)
-  end
-
-  def check_token_expiry(decoded_token)
-    return unless decoded_token['exp'] && Time.zone.at(decoded_token['exp']) < Time.zone.now
-
-    render json: { error: 'Token has expired' }, status: :unauthorized
-    nil
+  def token_not_expired?(decoded_token)
+    expiry_time = Time.zone.at(decoded_token['exp'])
+    expiry_time > Time.zone.now
   end
 
   def find_current_user(decoded_token)
-    @current_user = User.find_by(provider: decoded_token['provider'], id: decoded_token['providerUserId'])
-    if @current_user
-      if @current_user.last_sign_in_at.nil? || @current_user.last_sign_in_at < 10.minutes.ago
-        @current_user.update(last_sign_in_at: Time.zone.now)
-      end
-    else
-      render_unauthorized
+    User.find_by(provider: decoded_token['provider'], id: decoded_token['id']).tap do |user|
+      update_last_sign_in(user) if user
     end
   end
 
-  def fetch_limit
-    params[:limit].present? ? params[:limit].to_i : 10
-  end
+  def update_last_sign_in(user)
+    return true if user.last_sign_in_at && user.last_sign_in_at >= 10.minutes.ago
 
-  def fetch_page
-    params[:page].present? ? params[:page].to_i : 1
-  end
-
-  def paginate(query)
-    limit = fetch_limit
-    page = fetch_page
-    offset = page.positive? ? (page - 1) * limit : 0
-    query.limit(limit).offset(offset)
+    user.update(last_sign_in_at: Time.zone.now)
   end
 
   def render_unauthorized
     render json: { error: 'Not Authorized' }, status: :unauthorized
+  end
+
+  def handle_token_expired
+    render json: { error: 'Token has expired' }, status: :unauthorized
+  end
+
+  def handle_internal_server_error(_exception)
+    render json: { error: 'Internal server error' }, status: :internal_server_error
   end
 
   def record_not_found
