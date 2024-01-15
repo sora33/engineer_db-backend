@@ -58,4 +58,49 @@ class User < ApplicationRecord
   def self.work_distribution
     distribution(:work, WORK_OPTIONS)
   end
+
+  def self.filter_and_sort(params, current_user)
+    users = includes(:skills, :avatar_attachment).where.not(id: current_user.id).order(last_sign_in_at: :desc)
+    users = apply_search_params(users, params.slice(:gender, :location, :purpose, :work, :occupation))
+    apply_skill_params(users, params.slice(:skill, :skillLevel))
+  end
+
+  def self.apply_search_params(users, search_params)
+    search_params.each do |key, value|
+      users = users.where(key => value) if value.present?
+    end
+    users
+  end
+
+  def self.apply_skill_params(users, skill_params)
+    skill = skill_params[:skill]
+    skill_level = skill_params[:skillLevel]
+    if skill.present? && skill_level.present?
+      users = users.joins(:skills).where('skills.name = ? AND skills.level >= ?', skill, skill_level)
+    end
+    users
+  end
+
+  def update_skills(skill_attributes)
+    ActiveRecord::Base.transaction do
+      skill_attributes.each do |skill_param|
+        skill = skills.find_or_initialize_by(name: skill_param[:name])
+        skill.update!(level: skill_param[:level])
+      end
+    end
+    true
+  rescue ActiveRecord::RecordInvalid => e
+    errors.add(:base, "Failed to update skills: #{e.record.errors.full_messages.join(', ')}")
+    false
+  end
+
+  def self.authenticate_from_token(decoded_token)
+    find_by(provider: decoded_token['provider'], id: decoded_token['id']).tap do |user|
+      user&.update_last_sign_in
+    end
+  end
+
+  def update_last_sign_in
+    update(last_sign_in_at: Time.zone.now) if last_sign_in_at.nil? || last_sign_in_at < 10.minutes.ago
+  end
 end

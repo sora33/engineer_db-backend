@@ -9,7 +9,7 @@ module Api
       rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
       def index
-        users = filter_and_sort_users
+        users = User.filter_and_sort(params.except(:format), current_user)
         total_count = users.count
         users = paginate(users)
         serialized_users = ActiveModelSerializers::SerializableResource.new(users).as_json
@@ -72,34 +72,13 @@ module Api
                                      :experience, :gender, :location, :website)
       end
 
-      def filter_and_sort_users
-        users = User.includes(:skills, :avatar_attachment).where.not(id: current_user.id).order(last_sign_in_at: :desc)
-        users = apply_search_params(users)
-        apply_skill_params(users)
-      end
-
-      def apply_search_params(users)
-        search_params = params.permit(:gender, :location, :purpose, :work, :occupation)
-        search_params.each do |key, value|
-          users = users.where(key => value) if value.present?
-        end
-        users
-      end
-
-      def apply_skill_params(users)
-        skill = params[:skill]
-        skill_level = params[:skillLevel]
-        if skill.present? && skill_level.present?
-          users = users.joins(:skills).where('skills.name = ? AND skills.level >= ?', skill, skill_level)
-        end
-        users
-      end
-
       def render_error
         render json: { error: @user.errors.full_messages.join(', ') }, status: :unprocessable_entity
       end
 
       def handle_standard_error(error)
+        Rails.logger.error "#{error.class} (#{error.message}):"
+        Rails.logger.error error.backtrace.join("\n")
         render json: { error: error.message }, status: :internal_server_error
       end
     end
