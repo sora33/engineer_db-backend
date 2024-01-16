@@ -21,12 +21,12 @@ module Api
       end
 
       def destroy
-        if @post.user_id == current_user.id
-          @post.destroy
-          head :no_content, status: :ok
-        else
-          render json: { error: 'You can only delete your own posts' }, status: :forbidden
+        if @post.user != current_user
+          return render json: { error: 'You can only delete your own post.' }, status: :forbidden
         end
+
+        @post.destroy
+        head :no_content, status: :ok
       end
 
       private

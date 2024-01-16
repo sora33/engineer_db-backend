@@ -5,8 +5,7 @@ module Api
     class UsersController < ApplicationController
       skip_before_action :authenticate_request, only: [:create]
       before_action :find_or_initialize_user, only: [:create]
-      before_action :set_user, only: %i[show update]
-      rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
+      before_action :set_user, only: %i[show update destroy]
 
       def index
         users = User.filter_and_sort(params.except(:format), current_user)
@@ -24,27 +23,27 @@ module Api
         if @user.save
           render json: @user
         else
-          render_error
+          render_error(@user.errors.full_messages.join(', '), :unprocessable_entity)
         end
-      rescue StandardError => e
-        handle_standard_error(e)
       end
 
       def update
-        unless @user == current_user
+        if @user != current_user
           return render json: { error: 'You can only update your own profile.' }, status: :forbidden
         end
 
         if @user.update(user_update_params)
           render json: @user
         else
-          render_error
+          render_error(@user.errors.full_messages.join(', '), :unprocessable_entity)
         end
-      rescue StandardError => e
-        handle_standard_error(e)
       end
 
       def destroy
+        if @user != current_user
+          return render json: { error: 'You can only delete your own profile.' }, status: :forbidden
+        end
+
         current_user.destroy
         head :no_content
       end
@@ -70,16 +69,6 @@ module Api
       def user_update_params
         params.require(:user).permit(:name, :purpose, :comment, :work, :occupation, :introduction, :hobby, :birthday,
                                      :experience, :gender, :location, :website)
-      end
-
-      def render_error
-        render json: { error: @user.errors.full_messages.join(', ') }, status: :unprocessable_entity
-      end
-
-      def handle_standard_error(error)
-        Rails.logger.error "#{error.class} (#{error.message}):"
-        Rails.logger.error error.backtrace.join("\n")
-        render json: { error: error.message }, status: :internal_server_error
       end
     end
   end
