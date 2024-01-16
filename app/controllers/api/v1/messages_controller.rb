@@ -9,9 +9,7 @@ module Api
         messages = @group.messages.order(:created_at) || []
         other_user = @user
 
-        # rubocop:disable Rails/SkipsModelValidations
-        @group.messages.where.not(user_id: current_user.id).update_all(is_read: true)
-        # rubocop:enable Rails/SkipsModelValidations
+        @group.mark_messages_as_read_for(current_user)
 
         render json: { messages: ActiveModelSerializers::SerializableResource.new(messages),
                        otherUser: ActiveModelSerializers::SerializableResource.new(other_user) }
