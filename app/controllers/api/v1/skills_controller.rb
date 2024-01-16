@@ -10,14 +10,14 @@ module Api
       end
 
       def update
-        if @user == current_user
-          if @user.update_skills(skill_params[:skills])
-            render json: current_user.skills
-          else
-            render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
-          end
+        if @user != current_user
+          return render json: { error: 'You can only update your own skills.' }, status: :forbidden
+        end
+
+        if @user.update_skills(skill_params[:skills])
+          render json: current_user.skills
         else
-          render json: { error: 'You can only update your own skills.' }, status: :forbidden
+          render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
         end
       end
 

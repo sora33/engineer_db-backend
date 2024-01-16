@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'Api::V1::Users' do
   let(:user) { create(:user) }
+  let(:other_user) { create(:user) }
   let(:valid_params) { { user: attributes_for(:user) } }
   let(:invalid_params) { { user: attributes_for(:user, name: nil) } }
 
@@ -75,11 +76,28 @@ RSpec.describe 'Api::V1::Users' do
 
       it_behaves_like 'returns http status', :unprocessable_entity
     end
+
+    context 'when a user tries to update another user\'s profile' do
+      it 'does not update the profile and returns forbidden status' do
+        patch api_v1_user_path(other_user), params: valid_params
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
   end
 
   describe 'DELETE /destroy' do
-    subject(:delete_destroy) { delete api_v1_user_path(user) }
+    context 'when the user is the owner of the account' do
+      it 'deletes the user' do
+        delete api_v1_user_path(user)
+        expect(response).to have_http_status(:no_content)
+      end
+    end
 
-    it_behaves_like 'returns http status', :no_content
+    context 'when the user is not the owner of the account' do
+      it 'does not delete the user and returns forbidden status' do
+        delete api_v1_user_path(other_user)
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
   end
 end
