@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'Api::V1::Skills' do
   let(:user) { create(:user) }
+  let(:other_user) { create(:user) }
   let(:skill) { create(:skill, user:) }
   let(:valid_params) { { skills: [{ name: 'New Skill', level: 5 }] } }
   let(:invalid_params) { { skills: [{ name: '', level: 5 }] } }
@@ -37,6 +38,13 @@ RSpec.describe 'Api::V1::Skills' do
       subject(:patch_update_with_invalid_params) { patch api_v1_user_skills_path(user), params: invalid_params }
 
       it_behaves_like 'returns http status', :unprocessable_entity
+    end
+
+    context 'when a user tries to update another user\'s skills' do
+      it 'does not update the skills and returns forbidden status' do
+        patch api_v1_user_skills_path(other_user), params: valid_params
+        expect(response).to have_http_status(:forbidden)
+      end
     end
   end
 end
