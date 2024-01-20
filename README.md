@@ -12,7 +12,21 @@ https://qiita.com/hiiragiya/private/69ef1a3556cb63290d13
 <img src="https://img.shields.io/badge/-PostgreSQL-336791.svg?logo=postgresql&style=flat">
 <img src="https://img.shields.io/badge/-Docker-EEE.svg?logo=docker&style=flat">
 
-詳細は上記記事を参照ください。
+- フレームワーク
+  - Ruby on Rails
+- 主要なgem
+  - rack-cors
+  - active_model_serializers
+  - aws-sdk-s3
+  - jwt
+- テスト用のgem
+  - rubocop
+  - rspec-rails
+  - factory_bot_rails
+  - faker
+  - shoulda-matchers
+
+詳細は後述しています。
 
 ## スタートガイド
 Dockerが必要です。
@@ -106,7 +120,46 @@ Group ||--o{ GroupUser : has
 Group ||--o{ GroupMessage : has
 ```
 
-## その他
+## 技術的なこと
+使っているフレームワークや主要なgem、テスト手法について記述していきます。
 
-採用している技術、ライブラリ、開発環境の詳細、テスト仕様はこちらをご参照ください。
-https://qiita.com/hiiragiya/private/69ef1a3556cb63290d13#5%E3%83%90%E3%83%83%E3%82%AF%E3%82%A8%E3%83%B3%E3%83%89%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6
+### フレームワーク
+Ruby on Rails7　のAPIモードで実装しています。
+前述の通り、スクールから指定があったので採用しています。特に採用理由などは書きません。
+
+### gem
+特殊なものは採用しておらず、あまり説明することがないです。
+下記のような、多くの人から支持されているgemを採用しています。
+
+#### active_model_serializers
+APIのレスポンスボディを構成するために、採用しました。
+
+#### aws-sdk-s3
+Active Storageの保存先を、S3に設定するために採用しました。
+
+### テスト
+ テスト戦略として、RuboCopによる静的解析でコードの品質を保ち、モデルスペックでバリデーションやアソシエーションの正確性を確認しています。さらに、リクエストスペックを用いてAPIの結合テストを行い、システム全体の動作を保証しています。
+ 
+#### モックデータの作成
+モックデータの作成には『factory_bot_rails』と『faker』を使用しています。これらのgemにより、テスト用のリアルなデータセットを容易に生成でき、テストの正確性と効率を大幅に向上させています。
+
+#### モデルの単体テスト
+shoulda-matchersというgem使っています。 バリデーションテストなどを１行で記述できるようになので楽になります。
+
+モデルスペックでは、バリデーション、アソシエーション、メソッドのテストを実施しています。 
+
+#### APIの結合テスト
+ユースケースに基づいて、正常系と異常系の動作を確認しています。
+
+正常系は、レスポンスのステータスとボディの確認をしています。
+異常系は、認証エラー、not found、リクエストパラメータのバリデーションなどを確認しています。
+
+参考: https://qiita.com/KNR109/items/fe331069c4f958efbd96
+
+
+### 開発で工夫したところ
+
+- 開発面では、Rails Wayに従い、MVCアーキテクチャを厳守し、DRY原則を適用してコードの重複を避けるようにしています。
+- パフォーマンス面では、n+1問題、データアクセス回数、メモリ使用量などに注意して実装しています。
+
+参考: https://zenn.dev/yukito0616/articles/d3b7032e9f1e90
