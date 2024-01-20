@@ -37,7 +37,7 @@ Dockerが必要です。
 | ---------------------- | ----------------------------------------- | ---------------------------------------- |
 | FRONTEND_ENDPOINT    | フロントエンド（ローカル）のエンドポイント | http://localhost:8000    |
 | NEXTAUTH_SECRET       | フロントエンドと共通のkeyを設定   | hgoehoge   |
-| AWS_S3_BUCKET_NAME     | Active-strageの保存場所になるS3のバケット名 | ご自身で取得(未設定だとlocal)      |
+| AWS_S3_BUCKET_NAME     | Active-strageの保存場所になるS3のバケット名 | ご自身で取得      |
 | AWS_ACCESS_KEY_ID     | S3用のkeyのid | ご自身で取得      |
 | AWS_SECRET_ACCESS_KEY     |  S3用のkeyのpassword | ご自身で取得      |
 
